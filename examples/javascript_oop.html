@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+      <title>JavaScript OOP</title>
+      <script type="text/javascript" src="../ICE.js"></script>
+</head>
+<body>
+<h3>Object Oriented JavaScript</h3>
+
+<script type="text/javascript">
+Person = new Class({
+    init: function(name) {
+        this.name = name;
+        Person.count++;
+    },
+    getName: function() {
+        return this.name;
+    }
+});
+Person.count = 0;
+
+UniversityPerson = Person.extend({
+    init: function(name, school) {
+        this.parent(name);
+        this.school = school;
+    },
+    getSchool: function() {
+        return this.school;
+    }
+});
+
+Student = UniversityPerson.extend({
+    init: function(name, school, id) {
+        this.parent(name, school);
+        this.student_id = id;
+    },
+    getStudentId: function() {
+        return this.student_id;
+    }
+});
+
+Professor = UniversityPerson.extend({
+    init: function(name, school, cls) {
+        this.parent(name, school);
+        this.cls = cls;
+    },
+    getClass: function() {
+        return this.cls;
+    },
+    getName: function() {
+        return 'Professor ' + this.parent();
+    }
+});
+var amir = new Student('Amir', 'Aarhus University', 1);
+var benny = new Student('Benny', 'Parrot University', 2);
+$documentInsert(P( amir.getName() )); //Amir
+$documentInsert(P( benny.getStudentId() )); //2
+
+var johhny = new Professor('Johhny', 'JA University', 'Jack ass');
+$documentInsert(P( johhny.getClass() )); //Jack ass
+$documentInsert(P( johhny.getName() )); //Professor Johhny
+</script>
+</body>
+</html>

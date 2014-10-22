@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Resizeable text area</title>
+    <script type="text/javascript" src="../ICE.js"></script>
+
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+
+        textarea {
+            width: 500px;
+            height: 300px;
+            border: 1px solid #ccc;
+            margin: 0;
+        }
+
+        .ta_handler {
+            background-color: #555;
+            height: 9px;
+            font-size: 7px;
+            cursor: move;
+        }
+
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+
+<h3>Resizeable text area</h3>
+
+<br />
+
+<form>
+    <textarea id="ta" resizeable="false"></textarea>
+</form>
+
+<script>
+var TextAreaResizer = {
+    decorate: function(ta) {
+        ta = $(ta);
+
+        var on_start = function() { 
+            var root = $dnd.current_root;
+            handler.style.position = 'absolute';
+
+            var ta_pos = $position(ta);
+            $setTop(handler, ta_pos.y + ta.offsetHeight);
+            $setLeft(handler, ta_pos.x);
+        }
+
+        var on_drag = function() {
+            var root = $dnd.current_root;
+            var ta_pos = $position(ta);
+            var d_e_top = $position(root).y;
+
+            if(d_e_top > ta_pos.y) {
+                $setWidth(root, ta.offsetWidth);
+                $setHeight(ta, d_e_top - ta_pos.y);
+            }
+        }
+
+        var move_filter = function(x, y) {
+            var ta_top = $position(ta).y;
+            return [x, y < ta_top && ta_top || y];
+        }
+
+        var handler = DIV({className: 'ta_handler'});
+        $setWidth(handler, ta.offsetWidth);
+
+        $dnd.dragAble(handler, {move_x: false, 
+                                   on_drag: on_drag,
+                                   on_start: on_start,
+                                   move_filter: move_filter});
+        $addAfter(handler, ta);
+    }
+};
+TextAreaResizer.decorate('ta');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Sortable list</title>
+    <script type="text/javascript" src="../ICE.js"></script>
+
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            width: 200px;
+        }
+
+        td {
+            padding: 3px;
+        }
+
+        .item {
+            background-color: #fff2c3;
+            border: 1px solid #999;
+            width: 150px;
+            padding: 5px;
+            margin-bottom: 10px;
+            cursor: move;
+        }
+
+        .drop_item {
+            background-color: #fff;
+            color: #fff;
+            padding: 0 5px 0 5px;
+            border: 1px dashed #777;
+        }
+    </style>
+</head>
+<body>
+
+<h3>Sortable list</h3>
+
+<br />
+
+<ul id="list">
+    <li class="item">1</li>
+    <li class="item">2</li>
+    <li class="item">3</li>
+    <li class="item">4</li>
+    <li class="item">5</li>
+</ul>
+
+<script>
+Sortable = Class({
+    current_replacer: null,
+
+    init: function(items) {
+        this.li_items = items;
+        $bindMethods(this);
+    },
+
+    onStart: function() {
+        var root = $dnd.current_root;
+        var old_pos = $position(root);
+
+        var replacer = this.current_replacer = LI();
+
+        $setHeight(replacer, root.offsetHeight - 2); //2 for border
+        $setClass(replacer, root.className);
+        $addClass(replacer, 'drop_item');
+
+        $addAfter(replacer, root);
+
+        $setStyle(root, {position: 'absolute', top: old_pos.y, opacity: 0.5});
+    },
+
+    onDrag: function() {
+        var root = $dnd.current_root;
+        var current_replacer = this.current_replacer;
+        
+        $map(this.li_items, function(drop_zone) {
+            if(drop_zone != root) {
+                var d_z_top = $position(drop_zone).y;
+                var d_z_middle = d_z_top + (drop_zone.offsetHeight/2);
+
+                var d_e_top = $position(root).y;
+                var d_e_bottom = d_e_top + root.offsetHeight;
+
+                if(d_e_bottom > d_z_middle && d_e_top < d_z_top)
+                    $addAfter(current_replacer, drop_zone);
+                if(d_e_top < d_z_middle && d_e_top > d_z_top) 
+                    $addBefore(current_replacer, drop_zone);
+            }
+        });
+    },
+
+    onEnd: function() {
+        var root = $dnd.current_root;
+
+        $setOpacity(root, 1);
+        root.style.position = '';
+
+        $addBefore(root, this.current_replacer);
+        $remove(this.current_replacer);
+
+        this.current_replacer = null;
+    }
+});
+
+var li_items = $$('li', $('list'));
+var sortable = new Sortable(li_items);
+
+$map(li_items, function(item) {
+    $dnd.dragAble(item, {move_x: false,
+                         on_start: sortable.onStart,
+                         on_drag: sortable.onDrag,
+                         on_end: sortable.onEnd});
+});
+</script>
+
+</body>
+</html>

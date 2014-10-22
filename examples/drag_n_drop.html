@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>Drag and drop example</title>
+  <script type="text/javascript" src="../ICE.js"></script>
+
+  <style type="text/css">
+    body {
+        font-family: sans-serif;
+    }
+
+    .draggy {
+      width: 100px;
+      height: 100px;
+      background-color: #ffffcc;
+      z-index: 100;
+    }
+
+    .draggy_handler {
+      background-color: #999;
+      padding: 5px 0 5px 0;
+      text-align: center;
+      cursor: move;
+    }
+
+    .droppy {
+      width: 300px;
+      height: 300px;
+      color: white;
+    }
+
+    .color_red { background-color: red; }
+    .color_blue { background-color: blue; }
+
+    #drop_red {
+      float: left;
+    }
+
+    #drop_blue {
+      float: right;
+    }
+  </style>
+
+</head>
+<body>
+
+<h3>Drag and drop made easy</h3>
+<div id="draggy" class="draggy" style="position: absolute; left: 400px;">
+  <div id="draggy_handler" class="draggy_handler">
+    Drag handler
+  </div>
+</div>
+<br />
+<div>
+  <div class="droppy color_red" id="drop_red">Color draggy red</div>
+  <div class="droppy color_blue" id="drop_blue">Color droppy blue</div>
+</div>
+
+<script>
+var drop_red = $('drop_red');
+var drop_blue = $('drop_blue');
+
+var onDrag = function() {
+    var root = $dnd.current_root;
+
+    if($isOverlapping(root, drop_red))
+        $addClass(root, 'color_red')
+    else if($isOverlapping(root, drop_blue))
+        $addClass(root, 'color_blue')
+    else {
+        $removeClass(root, 'color_blue')
+        $removeClass(root, 'color_red')
+    }
+}
+
+$dnd.dragAble($('draggy'), {
+    handler: $('draggy_handler'),
+    on_drag: onDrag
+});
+</script>
+
+</body>
+</html>
