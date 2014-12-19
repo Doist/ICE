@@ -332,9 +332,9 @@ var ICE = {
 
     $$: function(selector, in_children) {
         if(in_children) {
-            return in_children.querySelectorAll(selector);
+            return ICE.$arrayForce(in_children.querySelectorAll(selector));
         } else {
-            return document.querySelectorAll(selector);
+            return ICE.$arrayForce(document.querySelectorAll(selector));
         }
     },
 
@@ -1497,6 +1497,20 @@ var ICE = {
         return str;
     },
 
+    $escape: function(string) {
+        var entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;',
+            "/": '&#x2F;'
+        };
+        return String(string).replace(/[&<>"'\/]/g, function (s) {
+          return entityMap[s];
+        });
+    },
+
     $preload: function(/*img_src1, ..., img_srcN*/) {
         var args = ICE.$AF(arguments);
         ICE.$AEV(window, 'load', function() {
@@ -1809,26 +1823,8 @@ ICE.fx.Transitions = {
 
 
 // Scroll to element
-ICE.fx.scrollToCls = ICE.fx.Base.extend({
-    init: function(elm, options) {
-        this.opts = {};
-
-        if(options)
-            ICE.$update(this.opts, options);
-
-        this.elm = elm || window;
-        this.parent(this.elm);
-    },
-    increase: function() {
-        if(this.opts && this.opts.useScrollTop)
-            this.elm.scrollTop = parseInt(this.now);
-        else
-            this.elm.scrollTo(0, this.now);
-    }
-});
-
 ICE.fx.scrollToPos = function(scroll_top) {
-    (new ICE.fx.scrollToCls()).custom(ICE.$scrollTop(),
+    (new ICE.fx._scrollToCls()).custom(ICE.$scrollTop(),
                                       scroll_top);
 }
 
@@ -1837,6 +1833,26 @@ ICE.fx.scrollToElm = function(elm, y_offset) {
         y_offset = 0;
     ICE.fx.scrollToPos(ICE.$position(elm).y + y_offset);
 }
+
+// Internal class
+ICE.fx._scrollToCls = ICE.fx.Base.extend({
+    init: function(elm, options) {
+        this.opts = {};
+
+        if(options)
+            ICE.$update(this.opts, options);
+
+        this.elm = elm || $body();
+        this.parent(this.elm);
+    },
+    increase: function() {
+        if(this.elm.scrollTo)
+            this.elm.scrollTo(0, this.now);
+        else
+            this.elm.scrollTop = parseInt(this.now);
+    }
+});
+
 
 
 
@@ -1847,9 +1863,6 @@ ICE.Drag = ICE.Class({
 
     current_handler: null, //The element that acts as handler
     current_root: null, //The element that acts as root
-
-    last_mouse_x: 0,
-    last_mouse_y: 0,
 
     init: function() {
         ICE.$bindMethods(this);
@@ -1931,6 +1944,11 @@ ICE.Drag = ICE.Class({
         var new_y = (cur_mouse_pos.y - last_mouse_pos.y);
 
         var abs = ICE.$position(root);
+
+        if(kws.position_filter) {
+            abs = kws.position_filter(abs);
+        }
+
         new_y += parseInt(root.style.top) || abs.y;
         new_x += parseInt(root.style.left) || abs.x;
 
