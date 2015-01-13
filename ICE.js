@@ -685,7 +685,7 @@ var ICE = {
     $isHidden: function(elm) {
         if(!elm)
             return false;
-        return ((elm.style.display == "none") || (elm.style.visibility == "hidden"));
+        return ((elm.style.display == "none") || (elm.style.visibility == "hidden")) || ($getStyle(elm, "opacity") == "0"));
     },
 
     $isShown: function(elm) {
