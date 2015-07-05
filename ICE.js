@@ -978,7 +978,7 @@ var ICE = {
 ////
 // HTTP request functions
 ////
-    $request: function(url, method) {
+    $request: function(url, method, settings) {
         var req = ICE.$httpReq();
 
         if(url.match(/^https?:\/\//) === null) {
@@ -994,11 +994,17 @@ var ICE = {
         if(!method)
             method = "POST";
 
+        if(settings) {
+            if(settings["cache"] === false && method === "GET") {
+                url += "&_=" + Date.now();
+            }
+        }
+
         return new ICEDeferred(req, method, url);
     },
 
-    $requestJSON: function(url, method) {
-        var d = ICE.$request(url, method);
+    $requestJSON: function(url, method, settings) {
+        var d = ICE.$request(url, method, settings);
         var eval_req = function(data, req) {
             var text = req.responseText;
             if(text == "Error")
